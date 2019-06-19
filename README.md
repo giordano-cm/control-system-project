@@ -1,5 +1,3 @@
-# Hello World Example
+# Control System Project
 
-Starts a FreeRTOS task to print "Hello World"
-
-See the README.md file in the upper level 'examples' directory for more information about examples.
+Firmware made in ESP32 to control the altitude of a mechanical arm attached to a BLDC motor, utilizing the MPU6050 accelerometer and gyroscope sensor.
