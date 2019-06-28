@@ -11,11 +11,11 @@
 // MPU6050 Registers Adress and Value
 //------------------------------------------------------
 #define MPU6050__CONFIG_ADRESS				0x1A
-#define MPU6050__CONFIG_VALUE				0b00000000//0b00000110		// digital low pass filter & external frame synchronization
+#define MPU6050__CONFIG_VALUE				0b00000110		// digital low pass filter & external frame synchronization
 #define MPU6050__GYRO_CONFIG_ADDRESS		0x1B
 #define MPU6050__GYRO_CONFIG_VALUE			0b00000000		// fundo de escala de medição --> (250), 500, 1000, 2000 °/s . Quanto maior o valor, menor o "passo", maior a precisão.
 #define MPU6050__ACCEL_CONFIG_ADDRESS		0x1C
-#define MPU6050__ACCEL_CONFIG_VALUE			0b00000000		// fundo de escala de medição --> (+-2g), +-4g, +-8g, +-16g . Quanto maior o valor, menor o "passo", maior a precisão.
+#define MPU6050__ACCEL_CONFIG_VALUE			0b00011000	// 0b000(xx)000 --> fundo de escala de medição --> (+-2g), +-4g, +-8g, +-16g . Quanto maior o valor, menor o "passo", maior a precisão.
 #define MPU6050__FIFO_EN_ADDRESS			0x23
 #define MPU6050__FIFO_EN_VALUE				0b01111000		// larga no FIFO --> valores do acelerômetro e giroscópio vão para o FIFO
 #define MPU6050__I2C_MST_CTRL_ADDRESS		0x24
