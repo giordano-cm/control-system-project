@@ -42,14 +42,6 @@ int16_t data_gyros_y = 0;
 int16_t data_gyros_z = 0;
 int8_t angle_x_degree = 0;
 int16_t angular_velocity_x_dps = 0;	// dps = degrees per second
-//uint64_t t0_us = 0;
-//uint64_t t1_us = 0;
-//double_t angle_x_degree;
-//double_t angle_y_degree;
-//double_t angle_z_degree;
-//double_t angle_x_rad;
-//double_t angle_y_rad;
-//double_t angle_z_rad;
 
 // PID Variables and defines
 double_t pid_k = 0.0;
@@ -61,13 +53,9 @@ float_t sample_rate_ms = (float_t)SAMPLE_PERIOD_MS;
 float_t kp = 0.0;
 float_t ki = 0.0;
 float_t kd = 0.0;
-//#define kp 4
-//#define ki 0
-//#define kd 0
-//#define UPPER_LIMIT_PID	200
-//#define LOWER_LIMIT_PID	180
-const uint8_t UPPER_LIMIT_PID = 200;
-const uint8_t LOWER_LIMIT_PID = 180;
+const uint8_t UPPER_LIMIT_PID = 220;
+const uint8_t LOWER_LIMIT_PID = 150;
+const uint8_t delta_upper_lower_limit_pid = (UPPER_LIMIT_PID - LOWER_LIMIT_PID)/2;
 
 //-------------------------------------------------------------------------
 // Function Headers
@@ -123,7 +111,7 @@ void app_main()
 		Get_Data_From_MPU_Task( NULL );
 		Angle_Calculation_Task( NULL );
 		Sensors_Reading_Function();
-		//pid_k = 0.185;
+		//pid_k = 0.150;
 		//pid_k += (double_t)ADC_Value[D_ADC_INDEX]/100000;
 		PID_Calculation_Task( NULL );
 		BLDC__ESC_Actuation();
@@ -132,7 +120,7 @@ void app_main()
 		//ESP_LOGI("VALUE","x: %d\tdata_gyros_y: %d", angle_x_degree, angular_velocity_x_dps);
 		//ESP_LOGI("PID","p: %f\ti: %f\td: %f\tpid: %f", pid_p_value, pid_i_value, pid_d_value, pid_k);
 		ESP_LOGI("PID","kp: %f\tki: %f\tkd: %f", kp, ki, kd);
-		//ESP_LOGI("PID","pid_K: %f", pid_k);
+		//ESP_LOGI("PID","pid_K: %f\tangle_x_degree: %d", pid_k, angle_x_degree);
 
 	}
 }
@@ -232,33 +220,27 @@ void PID_Calculation_Task ( void *pvParameters )
 	erro_k_m1 = erro_k;
 	erro_k = angle_x_degree - ANGLE_SET_POINT_DEGREE;
 
-	kp = (float_t)ADC_Value[P_ADC_INDEX]/100;
-	ki = (float_t)ADC_Value[I_ADC_INDEX]/100;
-	kd = (float_t)ADC_Value[D_ADC_INDEX]/100;
+	kp = (float_t)ADC_Value[P_ADC_INDEX]/1000;
+	ki = (float_t)ADC_Value[I_ADC_INDEX]/1000;
+	kd = (float_t)ADC_Value[D_ADC_INDEX]/1000;
 
-	//#if kp != 0
 	// Controlador P
 	pid_p_value = (double_t)( kp * erro_k );
-	//#endif
-
-	//#if ki != 0
+	
 	// Controlador I
 	if ( ki > 0.01 ) {
 		pid_i_value += (double_t)( ki * (((erro_k + erro_k_m1)/2) * (sample_rate_ms/1000)) );
-		if ( pid_i_value > (10) ) pid_i_value = 10;
-		else if ( pid_i_value < (-10) ) pid_i_value = (-10);
+		if ( pid_i_value > (delta_upper_lower_limit_pid) ) pid_i_value = delta_upper_lower_limit_pid;
+		else if ( pid_i_value < (-delta_upper_lower_limit_pid) ) pid_i_value = (-delta_upper_lower_limit_pid);
 	} else pid_i_value = 0.0;
-	//#endif
-
-	//#if kd != 0
+	
 	// Controlador D
 	pid_d_value = (double_t)( kd * ((erro_k - erro_k_m1)/(float_t)(sample_rate_ms/1000)) );
-	//#endif
 
 	//   Controlador PID
 	pid_k = pid_p_value + pid_i_value + pid_d_value;
 
-	pid_k = (-1)*pid_k + 190;	// 190 é o valor de "repouso" do motor, isto é, onde ele fica em 0° (+/-)
+	pid_k = (-1)*pid_k + 198;	// 198~200 é o valor de "repouso" do motor, isto é, onde ele fica em 0° (+/-)
 	
 	if ( pid_k > UPPER_LIMIT_PID ) pid_k = UPPER_LIMIT_PID;
 	else if ( pid_k < LOWER_LIMIT_PID ) pid_k = LOWER_LIMIT_PID;

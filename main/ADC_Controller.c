@@ -12,7 +12,7 @@ uint16_t ADC_Value[3] = {0,0,0};
 *END*------------------------------------------------------------------------*/
 void ADC_Config()
 {
-    adc1_config_width( ADC_WIDTH_BIT_10 );
+    adc1_config_width( ADC_WIDTH_BIT_12 );
     adc1_config_channel_atten(P_ADC_CHANNEL, ADC_ATTEN_DB_11);     // GPIO34
     adc1_config_channel_atten(I_ADC_CHANNEL, ADC_ATTEN_DB_11);     // GPIO35
     adc1_config_channel_atten(D_ADC_CHANNEL, ADC_ATTEN_DB_11);     // GPIO32
